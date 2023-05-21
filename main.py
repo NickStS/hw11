@@ -101,6 +101,9 @@ class AddressBook(UserDict):
 
 
 class Birthday(Field):
+    def __init__(self, value):
+        self.value = value
+        
     @Field.value.setter
     def value(self, value):
         if value:
