@@ -26,18 +26,18 @@ class Name(Field):
 
 class Phone(Field):
     def __init__(self, value):
-        self._value = value
+        self.value = value
 
     @property
     def value(self):
-        temp = Field.value.fget(self)
-        return temp
+        return Field.value.fget(self)
 
     @value.setter
     def value(self, value):
-        if not re.match(r'^\+?380\d{9}$', value):
+        if value is not None and not re.match(r'^\+?380\d{9}$', value):
             raise ValueError("Phone number should be in the format +380XXXXXXXXX")
         Field.value.fset(self, value)
+
 
 
 
@@ -103,8 +103,12 @@ class AddressBook(UserDict):
 class Birthday(Field):
     def __init__(self, value):
         self.value = value
-        
-    @Field.value.setter
+
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
     def value(self, value):
         if value:
             try:
@@ -113,6 +117,7 @@ class Birthday(Field):
                     self._value = self._value.replace(year=date.today().year + 1)
             except ValueError:
                 raise ValueError("Invalid birthday date format. Use DDMMYYYY.")
+
 
 
 
@@ -174,14 +179,17 @@ def main():
         elif command.startswith("add"):
             try:
                 data = input("Enter name, phone, and birthday (optional): ").split()
+                if len(data) < 2:
+                    raise ValueError("Please add other information")
                 name = data[0]
                 phone = data[1]
                 birthday = data[2] if len(data) > 2 else None
                 record = Record(Name(name), [Phone(phone)], birthday=Birthday(birthday))
                 ab.add_contact(record)
                 print("Contact added")
-            except ValueError:
-                print("Enter name, phone, and birthday in the correct format")
+            except ValueError as e:
+                print(str(e))
+
 
         elif command.startswith("change"):
             try:
