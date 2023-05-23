@@ -5,7 +5,6 @@ from datetime import datetime, date
 
 class Field:
     def __init__(self, value):
-        self._value = None
         self.value = value
 
     @property
@@ -35,10 +34,9 @@ class Phone(Field):
     @value.setter
     def value(self, value):
         if value is not None and not re.match(r'^\+?380\d{9}$', value):
-            raise ValueError("Phone number should be in the format +380XXXXXXXXX")
+            raise ValueError(
+                "Phone number should be in the format +380XXXXXXXXX")
         Field.value.fset(self, value)
-
-
 
 
 class Record:
@@ -61,10 +59,12 @@ class Record:
     def days_to_birthday(self):
         if self.birthday and self.birthday.value:
             today = date.today()
-            next_birthday = date(today.year, self.birthday.value.month, self.birthday.value.day)
+            next_birthday = date(
+                today.year, self.birthday.value.month, self.birthday.value.day)
 
             if next_birthday < today:
-                next_birthday = date(today.year + 1, self.birthday.value.month, self.birthday.value.day)
+                next_birthday = date(
+                    today.year + 1, self.birthday.value.month, self.birthday.value.day)
 
             return (next_birthday - today).days
         else:
@@ -74,7 +74,6 @@ class Record:
         phones = ", ".join(phone.value for phone in self.phones if phone.value)
         days_to_birthday = self.days_to_birthday()
         return f'Name: {self.name}, Phone: {phones}, Days to Birthday: {days_to_birthday}'
-
 
 
 class AddressBook(UserDict):
@@ -99,7 +98,6 @@ class AddressBook(UserDict):
             return "No contacts found"
 
 
-
 class Birthday(Field):
     def __init__(self, value):
         self.value = value
@@ -114,11 +112,10 @@ class Birthday(Field):
             try:
                 self._value = datetime.strptime(value, '%d%m%Y').date()
                 if self._value < date.today():
-                    self._value = self._value.replace(year=date.today().year + 1)
+                    self._value = self._value.replace(
+                        year=date.today().year + 1)
             except ValueError:
                 raise ValueError("Invalid birthday date format. Use DDMMYYYY.")
-
-
 
 
 def input_error(func):
@@ -133,12 +130,12 @@ def input_error(func):
             return "Enter name and phone"
     return wrapper
 
+
 @input_error
 def add_contact(ab, name, phone):
     record = Record(Name(name), [Phone(phone)])
     ab.add_contact(record)
     return "Contact added"
-
 
 
 @input_error
@@ -162,8 +159,6 @@ def show_phone(ab, name):
         raise KeyError("Contact not found")
 
 
-
-
 ab = AddressBook()
 
 
@@ -178,18 +173,19 @@ def main():
 
         elif command.startswith("add"):
             try:
-                data = input("Enter name, phone, and birthday (optional): ").split()
+                data = input(
+                    "Enter name, phone, and birthday (optional): ").split()
                 if len(data) < 2:
                     raise ValueError("Please add other information")
                 name = data[0]
                 phone = data[1]
                 birthday = data[2] if len(data) > 2 else None
-                record = Record(Name(name), [Phone(phone)], birthday=Birthday(birthday))
+                record = Record(
+                    Name(name), [Phone(phone)], birthday=Birthday(birthday))
                 ab.add_contact(record)
                 print("Contact added")
             except ValueError as e:
                 print(str(e))
-
 
         elif command.startswith("change"):
             try:
